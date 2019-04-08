@@ -2,6 +2,8 @@ package com.example.shuffle;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -15,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27";
     private static final String REDIRECT_URI = "https://open.spotify.com/";
     private SpotifyAppRemote mSpotifyAppRemote;
+    private Button playButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -24,13 +27,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        ConnectionParams connectionParams =
-                new ConnectionParams.Builder(CLIENT_ID)
-                        .setRedirectUri(REDIRECT_URI)
-                        .showAuthView(true)
-                        .build();
+        this.playButton = findViewById(R.id.play_button);
+        MainActivity currentActivity = this;
 
-        SpotifyAppRemote.connect(this, connectionParams,
+        this.playButton.setOnClickListener((View v) -> {
+            ConnectionParams connectionParams =
+                    new ConnectionParams.Builder(CLIENT_ID)
+                            .setRedirectUri(REDIRECT_URI)
+                            .showAuthView(true)
+                            .build();
+
+            SpotifyAppRemote.connect(currentActivity, connectionParams,
                 new Connector.ConnectionListener() {
 
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
@@ -48,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
                         // Something went wrong when attempting to connect! Handle errors here
                     }
                 });
+        });
     }
 
     @Override
@@ -59,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
     private void connected() {
         // Play a playlist
         mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
-
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()

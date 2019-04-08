@@ -7,7 +7,7 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="Theme.MyApp" parent="Theme.MaterialComponents.Light.Bridge">
+    <style name="Theme.MyApp" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
         <!-- ... -->
     </style>
 
