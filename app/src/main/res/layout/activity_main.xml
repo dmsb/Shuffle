@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.textfield.TextInputLayout
+<androidx.appcompat.widget.LinearLayoutCompat
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <com.google.android.material.button.MaterialButton
+
+    <ImageButton
         android:id="@+id/play_button"
-        android:layout_width="wrap_content"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        android:text="@string/play_button"/>
-</com.google.android.material.textfield.TextInputLayout>
+        android:src="@drawable/shuffle"
+        android:adjustViewBounds="true"
+        android:maxWidth="100dp"
+        android:maxHeight="100dp"
+        android:layout_marginLeft="130dp"
+        android:layout_marginTop="@android:dimen/thumbnail_height"
+        android:scaleType="fitCenter"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        />
+
+</androidx.appcompat.widget.LinearLayoutCompat>

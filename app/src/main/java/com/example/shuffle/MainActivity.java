@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
@@ -14,10 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27";
+    private static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27"; //código do conta
     private static final String REDIRECT_URI = "https://open.spotify.com/";
     private SpotifyAppRemote mSpotifyAppRemote;
-    private Button playButton;
+    private ImageButton playButton;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,8 +28,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        this.playButton = findViewById(R.id.play_button);
-        MainActivity currentActivity = this;
+        this.playButton =  findViewById(R.id.play_button);
+
 
         this.playButton.setOnClickListener((View v) -> {
             ConnectionParams connectionParams =
@@ -37,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                             .showAuthView(true)
                             .build();
 
-            SpotifyAppRemote.connect(currentActivity, connectionParams,
+            SpotifyAppRemote.connect(this, connectionParams,
                 new Connector.ConnectionListener() {
 
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
