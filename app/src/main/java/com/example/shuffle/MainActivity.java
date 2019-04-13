@@ -16,6 +16,9 @@ import com.spotify.android.appremote.api.SpotifyAppRemote;
 import com.spotify.protocol.types.Track;
 
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,11 +30,19 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton menuButton;
     private ImageButton searchButton;
     private ImageButton settingsButton;
+    private AdView mAdView;
 
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        MobileAds.initialize(this, "ca-app-pub-8820391228754337~8248885609");
+
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
 
         this.searchButton = findViewById(R.id.search_button);
         this.settingsButton = findViewById(R.id.settings_button);

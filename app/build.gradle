@@ -27,6 +27,7 @@ dependencies {
     implementation "com.google.code.gson:gson:2.8.5"
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'com.google.android.gms:play-services-ads:17.2.0'
 
     implementation project(':spotify-app-remote-release-0.6.1')
 
@@ -34,4 +35,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+
+
 }
