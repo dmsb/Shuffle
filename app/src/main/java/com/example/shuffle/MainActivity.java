@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -81,6 +82,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         this.playButton.setOnClickListener((View v) -> {
+            
+            //Rotation button
+            float btn = this.playButton.getRotation() + 360F;
+            this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator());
+
             ConnectionParams connectionParams =
                     new ConnectionParams.Builder(CLIENT_ID)
                             .setRedirectUri(REDIRECT_URI)

@@ -23,7 +23,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.searchButton = findViewById(R.id.search_button);
         this.settingsButton = findViewById(R.id.settings_button);
         this.menuButton = findViewById(R.id.menu_button);
-        
+
         // Settings button methods
         this.settingsButton.setOnLongClickListener((View v) -> {
             Toast toast = Toast.makeText(SettingsActivity.this, "Configurações", Toast.LENGTH_SHORT);
