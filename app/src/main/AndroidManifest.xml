@@ -10,13 +10,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApp">
         <activity
+            android:name=".MainActivity">
+        </activity>
+        <activity
             android:name=".SettingsActivity"
-            android:label="Configurações">
-        </activity>
-        <activity android:name=".SearchActivity"
-            android:label="Estilos">
-        </activity>
-        <activity android:name=".MainActivity">
+            android:label="Configurações"></activity>
+        <activity
+            android:name=".SearchActivity"
+            android:label="Estilos"></activity>
+        <activity
+            android:name=".SplashScreenActivity"
+            android:theme="@style/AppCompat.FullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

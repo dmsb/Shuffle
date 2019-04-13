@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         this.searchButton.setOnClickListener((View v) -> {
             Intent it = new Intent(this, SearchActivity.class);
             startActivity(it);
+            finish();
         });
         this.searchButton.setOnLongClickListener((View v) -> {
             Toast toast = Toast.makeText(MainActivity.this, "Estilos", Toast.LENGTH_SHORT);
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
         this.settingsButton.setOnClickListener((View v) -> {
             Intent it = new Intent(this, SettingsActivity.class);
             startActivity(it);
+            finish();
         });
         this.settingsButton.setOnLongClickListener((View v) -> {
             Toast toast = Toast.makeText(MainActivity.this, "Configurações", Toast.LENGTH_SHORT);
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         this.playButton.setOnClickListener((View v) -> {
-            
+
             //Rotation button
             float btn = this.playButton.getRotation() + 360F;
             this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator());

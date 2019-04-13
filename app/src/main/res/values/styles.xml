@@ -10,4 +10,9 @@
     <style name="Theme.MyApp" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
     </style>
 
+    <!-- Styles-->
+    <style name="AppCompat.FullScreen" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

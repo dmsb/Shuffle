@@ -36,6 +36,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.searchButton.setOnClickListener((View v) -> {
             Intent it = new Intent(this, SearchActivity.class);
             startActivity(it);
+            finish();
         });
         this.searchButton.setOnLongClickListener((View v) -> {
             Toast toast = Toast.makeText(SettingsActivity.this, "Estilos", Toast.LENGTH_SHORT);
@@ -54,6 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
         this.menuButton.setOnClickListener((View v) -> {
             Intent it = new Intent(this, MainActivity.class);
             startActivity(it);
+            finish();
         });
 
     }
