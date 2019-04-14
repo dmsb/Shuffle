@@ -6,37 +6,50 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical">
 
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
-        <!-- ads:adUnitId="ca-app-pub-8820391228754337~8248885609"> -->
-    </com.google.android.gms.ads.AdView>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_gravity="top"
+        android:layout_weight="1">
+        <com.google.android.gms.ads.AdView
+            xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            ads:adSize="BANNER"
+            ads:adUnitId="ca-app-pub-3940256099942544/6300978111">
+            <!-- ads:adUnitId="ca-app-pub-8820391228754337~8248885609"> -->
+        </com.google.android.gms.ads.AdView>
+    </LinearLayout>
 
-    <ImageButton
-        android:id="@+id/play_button"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/shuffle"
-        android:adjustViewBounds="true"
-        android:maxWidth="100dp"
-        android:maxHeight="100dp"
-        android:layout_marginTop="@android:dimen/thumbnail_height"
-        android:scaleType="fitCenter"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        />
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_weight="1">
+        <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/shuffle"
+                android:adjustViewBounds="true"
+                android:maxWidth="100dp"
+                android:maxHeight="100dp"
+                android:scaleType="fitCenter"
+                android:background="?attr/selectableItemBackgroundBorderless"/>
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_weight="1">
         <ImageButton
             android:id="@+id/menu_button"
             android:src="@drawable/home"
@@ -48,10 +61,7 @@
             android:adjustViewBounds="true"
             android:maxWidth="30dp"
             android:maxHeight="30dp"
-            android:layout_marginTop="@android:dimen/thumbnail_height"
-            android:scaleType="fitCenter"
-
-            />
+            android:scaleType="fitCenter"/>
         <ImageButton
             android:id="@+id/search_button"
             android:src="@drawable/music"
@@ -63,7 +73,6 @@
             android:adjustViewBounds="true"
             android:maxWidth="30dp"
             android:maxHeight="30dp"
-            android:layout_marginTop="@android:dimen/thumbnail_height"
             android:scaleType="fitCenter"/>
         <ImageButton
             android:id="@+id/settings_button"
@@ -76,7 +85,6 @@
             android:adjustViewBounds="true"
             android:maxWidth="30dp"
             android:maxHeight="30dp"
-            android:layout_marginTop="@android:dimen/thumbnail_height"
             android:scaleType="fitCenter"/>
     </LinearLayout>
 
