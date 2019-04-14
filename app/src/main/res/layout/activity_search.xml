@@ -78,7 +78,7 @@
             android:scaleType="fitCenter"/>
         <ImageButton
             android:id="@+id/settings_button"
-            android:src="@drawable/cog"
+            android:src="@drawable/settings"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_gravity="bottom"
             android:layout_marginBottom="20dp"

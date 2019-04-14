@@ -9,16 +9,26 @@
     android:background="#fff"
     android:orientation="vertical">
 
+    <ImageButton
+        android:id="@+id/play_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/shuffle"
+        android:adjustViewBounds="true"
+        android:maxWidth="100dp"
+        android:maxHeight="100dp"
+        android:layout_marginTop="200dp"
+        android:scaleType="fitCenter"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        />
+
     <TextView
         android:layout_gravity="center"
-        android:layout_marginTop="200dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Shuffle!"
         android:textColor="#04661E"
         android:textSize="40dp"/>
-
-
 
 </LinearLayout>
