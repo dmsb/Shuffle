@@ -20,7 +20,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         //Rotation button
         this.playButton =  findViewById(R.id.play_button);
         float btn = this.playButton.getRotation() + 360F;
-        this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator());
+        this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
 
         Handler handle = new Handler();
         handle.postDelayed(new Runnable() {

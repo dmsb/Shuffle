@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
             //Rotation button
             float btn = this.playButton.getRotation() + 360F;
-            this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator());
+            this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
 
             ConnectionParams connectionParams =
                     new ConnectionParams.Builder(CLIENT_ID)
