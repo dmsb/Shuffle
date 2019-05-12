@@ -6,37 +6,62 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
+import com.spotify.android.appremote.api.PlayerApi;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
-import com.spotify.protocol.types.Track;
 
 import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.spotify.protocol.types.Track;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class MainActivity extends AppCompatActivity {
-
-    private static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27"; //código do conta
-    private static final String REDIRECT_URI = "https://open.spotify.com/";
-    private SpotifyAppRemote mSpotifyAppRemote;
 
     private ImageButton playButton;
     private ImageButton menuButton;
     private ImageButton searchButton;
     private ImageButton settingsButton;
     private AdView mAdView;
+    private static final String REDIRECT_URI = "https://open.spotify.com/";
 
+    private SpotifyAppRemote mSpotifyAppRemote;
 
+    public static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27";
+    public static final int AUTH_TOKEN_REQUEST_CODE = 1337;
+
+    private final OkHttpClient mOkHttpClient = new OkHttpClient();
+    private String mAccessToken;
+    private Call mCall;
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         MobileAds.initialize(this, "ca-app-pub-8820391228754337~8248885609");
 
@@ -75,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(it);
             finish();
         });
+
         this.settingsButton.setOnLongClickListener((View v) -> {
             Toast toast = Toast.makeText(MainActivity.this, "Configurações", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER|Gravity.CENTER_HORIZONTAL, 0, 200);
@@ -82,6 +108,247 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
+        if(mAccessToken == null) {
+            onRequestToken();
+        }
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        final AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
+
+        if (AUTH_TOKEN_REQUEST_CODE == requestCode) {
+            mAccessToken = response.getAccessToken();
+        }
+    }
+
+    public void buildShufflePlaylistAndPlay() {
+
+        if (mAccessToken == null) {
+            return;
+        }
+
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/top/tracks")
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("Failed to parse data: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject object = new JSONObject(response.body().string());
+                    JSONArray tracks = object.getJSONArray("items");
+                    List<String> trackIds = new ArrayList<>();
+
+                    for(int i = 0; i < tracks.length(); i++) {
+                        String trackId = String.valueOf(tracks.getJSONObject(i).get("uri"));
+                        trackIds.add(trackId);
+                    }
+                    createShufflePlaylist(trackIds);
+
+                } catch (JSONException e) {
+                    Log.e("Failed to parse data: ", e.getMessage());
+                }
+            }
+        });
+    }
+
+    private AuthenticationRequest getAuthenticationRequest(AuthenticationResponse.Type type) {
+        String[] scopes = "streaming user-read-recently-played user-top-read user-library-modify user-library-read playlist-read-private playlist-modify-public playlist-modify-private playlist-read-collaborative user-read-email user-read-birthdate user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming".split("\\s+");
+        return new AuthenticationRequest.Builder(CLIENT_ID, type, "https://open.spotify.com/")
+                .setScopes(scopes)
+                .build();
+    }
+
+    public void onRequestToken() {
+        final AuthenticationRequest request = getAuthenticationRequest(AuthenticationResponse.Type.TOKEN);
+        AuthenticationClient.openLoginActivity(this, AUTH_TOKEN_REQUEST_CODE, request);
+    }
+
+    private void createShufflePlaylist(List<String> trackIds) {
+
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/playlists")
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject object = new JSONObject(response.body().string());
+                    JSONArray playlists = object.getJSONArray("items");
+                    Boolean createPlaylist = true;
+                    String shufflePlaylistId = null;
+                    for(int i = 0; i < playlists.length(); i++) {
+                        String playListName = String.valueOf(playlists.getJSONObject(i).get("name"));
+                        if("Shuffle".equals(playListName)) {
+                            createPlaylist = false;
+                            shufflePlaylistId = String.valueOf(playlists.getJSONObject(i).get("id"));
+                            break;
+                        }
+                    }
+
+                    if(createPlaylist) {
+                        createPlaylist(trackIds);
+                    } else {
+                        findAndClearShufflePlaylist(shufflePlaylistId, trackIds);
+                    }
+
+                } catch (JSONException e) {
+                    Log.e("Failed to parse data: ", e.getMessage());
+                }
+            }
+        });
+    }
+
+    private void insertTracksIntoShufflePlaylist(String shufflePlaylistId, List<String> trackIds) {
+
+        String tracksUri = String.join(",", trackIds)
+                    .replaceAll(":", "%3A")
+                    .replaceAll(",", "%2C");
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "/tracks?uris=" + tracksUri)
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Accept", "application/json")
+                .post(RequestBody.create(MediaType.parse("application/json"), "{}"))
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i("INFO: ", response.message());
+                connected("spotify:playlist:" + shufflePlaylistId);
+            }
+        });
+    }
+
+    private void createPlaylist(List<String> trackIds) {
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"),"{\"name\":\"Shuffle\",\"description\":\"Shuffle auto genereted playlist\",\"public\":false}\"");
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/me/playlists")
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .post(body)
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i("INFO: ", response.message());
+                String shufflePlaylistId = response.header("location").replace("https://api.spotify.com/v1/playlists/", "");
+                findAndClearShufflePlaylist(shufflePlaylistId, trackIds);
+            }
+        });
+    }
+
+    private void findAndClearShufflePlaylist(String shufflePlaylistId, List<String> tracksToInsert) {
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "?fields=tracks.items.track(uri)")
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Accept", "application/json")
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                List<String> tracksToBeRemoved = new ArrayList<>();
+                try {
+                    JSONObject object = new JSONObject(response.body().string());
+                    JSONArray tracks = object.getJSONObject("tracks").getJSONArray("items");
+
+                    for (int i = 0; i < tracks.length(); i++) {
+                        String trackUri = String.valueOf(tracks.getJSONObject(i).getJSONObject("track").get("uri"));
+                        tracksToBeRemoved.add(trackUri);
+                    }
+                } catch (JSONException e) {
+                    Log.e("ERROR", e.getMessage());
+                }
+
+                if(tracksToBeRemoved.isEmpty() == false) {
+                    clearShufflePlaylist(shufflePlaylistId, tracksToBeRemoved, tracksToInsert);
+                } else {
+                    insertTracksIntoShufflePlaylist(shufflePlaylistId, tracksToInsert);
+                }
+
+            }
+        });
+    }
+
+    private void clearShufflePlaylist(String shufflePlaylistId, List<String> tracksToBeRemoved, List<String> tracksToInsert) {
+        StringBuilder trackIds = new StringBuilder();
+        trackIds.append("{\"tracks\":[");
+
+        for(int i = 0; tracksToBeRemoved.size() > i; i++) {
+            trackIds.append("{\"uri\": \"")
+                    .append(tracksToBeRemoved.get(i))
+                    .append("\"}");
+            if(tracksToBeRemoved.size() > i + 1) {
+                trackIds.append(", ");
+            }
+        }
+        trackIds.append("]}");
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"), trackIds.toString());
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "/tracks")
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .delete(body)
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i("INFO: ", response.message());
+                insertTracksIntoShufflePlaylist(shufflePlaylistId, tracksToInsert);
+            }
+        });
     }
 
     @Override
@@ -112,10 +379,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onConnected(SpotifyAppRemote spotifyAppRemote) {
                         mSpotifyAppRemote = spotifyAppRemote;
                         Log.d("MainActivity", "Connected! Yay!");
-
-                        // Now you can start interacting with App Remote
-                        connected();
-
+                        buildShufflePlaylistAndPlay();
                     }
 
                     public void onFailure(Throwable throwable) {
@@ -133,9 +397,9 @@ public class MainActivity extends AppCompatActivity {
         SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
-    private void connected() {
-        // Play a playlist
-        mSpotifyAppRemote.getPlayerApi().play("spotify:playlist:37i9dQZF1DX2sUQwD7tbmL");
+    private void connected(String shufflePlaylistUri) {
+        // Play a
+        mSpotifyAppRemote.getPlayerApi().play(shufflePlaylistUri);
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
