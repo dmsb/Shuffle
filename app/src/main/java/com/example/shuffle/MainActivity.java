@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SpotifyAppRemote mSpotifyAppRemote;
 
-    public static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27";
+    public static final String CLIENT_ID = "d7ebba782ca24b48a51094cfc9dbd152";
     public static final int AUTH_TOKEN_REQUEST_CODE = 1337;
 
     private final OkHttpClient mOkHttpClient = new OkHttpClient();
@@ -154,7 +154,7 @@ public class MainActivity extends AppCompatActivity {
                         String trackId = String.valueOf(tracks.getJSONObject(i).get("uri"));
                         trackIds.add(trackId);
                     }
-                    createShufflePlaylist(trackIds);
+                    createShufflePlaylist(orderShufflePlaylist(trackIds));
 
                 } catch (JSONException e) {
                     Log.e("Failed to parse data: ", e.getMessage());
@@ -219,6 +219,48 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private List<String> orderShufflePlaylist(List<String> trackIds) {
+
+        List<String> ltReturnTracks = new ArrayList<>();
+        String params = "";
+
+
+        for(int i = 0; i < trackIds.size(); i++) {
+            String trackId = trackIds.get(i).replace("spotify:track:", "");
+             params += trackId + ',';
+        }
+
+
+        final Request request = new Request.Builder()
+                .url("https://api.spotify.com/v1/audio-features?ids=" + params)
+                .addHeader("Authorization","Bearer " + mAccessToken)
+                .build();
+
+        mCall = mOkHttpClient.newCall(request);
+
+        mCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ERROR: ", e.getMessage());
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    JSONObject object = new JSONObject(response.body().string());
+                    JSONArray tracks = object.getJSONArray("audio_features");
+                    PlaylistSorter sorter = new PlaylistSorter();
+                    ltReturnTracks.addAll(sorter.orderByBattery(tracks,getApplicationContext()));
+
+                } catch (JSONException e) {
+                    Log.e("Failed to parse data: ", e.getMessage());
+                }
+            }
+        });
+
+        return ltReturnTracks;
+    }
+
     private void insertTracksIntoShufflePlaylist(String shufflePlaylistId, List<String> trackIds) {
 
         String tracksUri = String.join(",", trackIds)
@@ -249,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createPlaylist(List<String> trackIds) {
-        RequestBody body = RequestBody.create(MediaType.parse("application/json"),"{\"name\":\"Shuffle\",\"description\":\"Shuffle auto genereted playlist\",\"public\":false}\"");
+        RequestBody body = RequestBody.create(MediaType.parse("application/json"),"{\"name\":\"Shuffle\",\"description\":\"Shuffle auto generated playlist\",\"public\":false}\"");
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/playlists")
                 .addHeader("Authorization","Bearer " + mAccessToken)
