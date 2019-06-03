@@ -63,11 +63,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MobileAds.initialize(this, "ca-app-pub-8820391228754337~8248885609");
+        /*MobileAds.initialize(this, "ca-app-pub-8820391228754337~8248885609");
 
         mAdView = findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.loadAd(adRequest);
+        mAdView.loadAd(adRequest);*/
 
         this.searchButton = findViewById(R.id.search_button);
         this.settingsButton = findViewById(R.id.settings_button);
@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                         trackIds.add(trackId);
                     }
                     createShufflePlaylist(orderShufflePlaylist(trackIds));
+                    //createShufflePlaylist(trackIds);
 
                 } catch (JSONException e) {
                     Log.e("Failed to parse data: ", e.getMessage());
@@ -250,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject object = new JSONObject(response.body().string());
                     JSONArray tracks = object.getJSONArray("audio_features");
                     PlaylistSorter sorter = new PlaylistSorter();
-                    ltReturnTracks.addAll(sorter.orderByBattery(tracks,getApplicationContext()));
+                    ltReturnTracks.addAll(sorter.orderMusics(tracks,getApplicationContext()));
 
                 } catch (JSONException e) {
                     Log.e("Failed to parse data: ", e.getMessage());

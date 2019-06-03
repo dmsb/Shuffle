@@ -10,12 +10,34 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-
-
 public class PlaylistSorter {
 
+    public List<String> orderMusics(JSONArray tracksArray, Context context){
 
-    public List<String> orderByBattery(JSONArray tracksArray, Context context){
+
+        List<String> ltReturnTracks = new ArrayList<>();
+        JSONArray jsonMusicas = orderByBattery(tracksArray,context);
+
+        jsonMusicas = orderByBattery(jsonMusicas,context);
+
+        try{
+
+            for(int i = 0; i < jsonMusicas.length(); i++) {
+
+                ltReturnTracks.add("spotify:track:" + String.valueOf(tracksArray.getJSONObject(i).get("id")));
+
+            }
+
+        } catch (JSONException e) {
+            Log.e("Failed to parse data: ", e.getMessage());
+        }
+
+
+        return ltReturnTracks;
+    }
+
+
+    public JSONArray orderByBattery(JSONArray tracksArray, Context context){
 
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, ifilter);
@@ -23,8 +45,10 @@ public class PlaylistSorter {
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         float batteryPct = level / (float)scale;
 
-        List<String> ltReturnTracks = new ArrayList<>();
-        List<String> ltAUXTracks = new ArrayList<>();
+        JSONArray ltReturnTracks = new JSONArray();
+        JSONArray ltAUXTracks    = new JSONArray();
+
+        JSONArray ltReturn    = new JSONArray();
 
         try{
 
@@ -33,20 +57,31 @@ public class PlaylistSorter {
                 Double value = Double.valueOf((Double)tracksArray.getJSONObject(i).get("energy"));
 
                 if( value < batteryPct){
-                    ltReturnTracks.add(String.valueOf(tracksArray.getJSONObject(i).get("id")));
+                    ltReturnTracks.put(i,tracksArray.getJSONObject(i));
                 }else{
-                    ltAUXTracks.add(String.valueOf(tracksArray.getJSONObject(i).get("id")));
+                    ltAUXTracks.put(i,tracksArray.getJSONObject(i));
                 }
             }
 
-            ltReturnTracks.addAll(ltAUXTracks);
+
+            for(int i = 0; i < ltReturnTracks.length(); i++) {
+
+                ltReturn.put(i,ltReturnTracks.getJSONObject(i));
+            }
+
+            for(int i = 0; i < ltAUXTracks.length(); i++) {
+
+                ltReturn.put(i,ltReturnTracks.getJSONObject(i));
+            }
+
+
 
         } catch (JSONException e) {
             Log.e("Failed to parse data: ", e.getMessage());
         }
 
 
-        return ltReturnTracks;
+        return ltReturn;
 
     }
 }
