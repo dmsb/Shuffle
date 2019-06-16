@@ -1,6 +1,7 @@
 package com.example.shuffle;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -420,27 +421,30 @@ public class MainActivity extends AppCompatActivity {
             float btn = this.playButton.getRotation() + 360F;
             this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
 
-            ConnectionParams connectionParams =
-                    new ConnectionParams.Builder(CLIENT_ID)
-                            .setRedirectUri(REDIRECT_URI)
-                            .showAuthView(true)
-                            .build();
+            boolean isInstalledSpotify = InstalledAppsChecker.isPackageInstalled("com.spotify.music", getPackageManager());
 
-            SpotifyAppRemote.connect(this, connectionParams,
-                new Connector.ConnectionListener() {
+            if(isInstalledSpotify) {
+                ConnectionParams connectionParams =
+                        new ConnectionParams.Builder(CLIENT_ID)
+                                .setRedirectUri(REDIRECT_URI)
+                                .showAuthView(true)
+                                .build();
 
-                    public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                        mSpotifyAppRemote = spotifyAppRemote;
-                        Log.d("MainActivity", "Connected! Yay!");
-                        buildShufflePlaylistAndPlay();
-                    }
+                SpotifyAppRemote.connect(this, connectionParams,
+                        new Connector.ConnectionListener() {
 
-                    public void onFailure(Throwable throwable) {
-                        Log.e("MyActivity", throwable.getMessage(), throwable);
+                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                                mSpotifyAppRemote = spotifyAppRemote;
+                                Log.d("MainActivity", "Connected! Yay!");
+                                buildShufflePlaylistAndPlay();
+                            }
 
-                        // Something went wrong when attempting to connect! Handle errors here
-                    }
-                });
+                            public void onFailure(Throwable throwable) {
+                                Log.e("MyActivity", throwable.getMessage(), throwable);
+                                // Something went wrong when attempting to connect! Handle errors here
+                            }
+                        });
+            }
         });
     }
 
@@ -451,8 +455,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void connected(String shufflePlaylistUri) {
+
         // Play a
         mSpotifyAppRemote.getPlayerApi().play(shufflePlaylistUri);
+
         // Subscribe to PlayerState
         mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
@@ -462,5 +468,11 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("MainActivity", track.name + " by " + track.artist.name);
                     }
                 });
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(shufflePlaylistUri));
+        intent.putExtra(Intent.EXTRA_REFERRER,
+                Uri.parse("android-app://" + getApplicationContext().getPackageName()));
+        startActivity(intent);
     }
 }
