@@ -31,6 +31,8 @@ dependencies {
     implementation 'com.android.volley:volley:1.1.1'
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
 
+    implementation 'com.google.code.gson:gson:2.8.5'
+
     implementation project(':spotify-app-remote-release-0.6.1')
     implementation 'com.spotify.android:auth:1.1.0'
 

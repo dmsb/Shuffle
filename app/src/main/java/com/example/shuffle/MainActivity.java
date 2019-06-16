@@ -9,9 +9,10 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.spotify.android.appremote.api.ConnectionParams;
 import com.spotify.android.appremote.api.Connector;
-import com.spotify.android.appremote.api.PlayerApi;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -51,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
 
     private SpotifyAppRemote mSpotifyAppRemote;
 
-    public static final String CLIENT_ID = "d7ebba782ca24b48a51094cfc9dbd152";
+   // public static final String CLIENT_ID = "d7ebba782ca24b48a51094cfc9dbd152"; //jorge id
+    public static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27"; //diogo id
     public static final int AUTH_TOKEN_REQUEST_CODE = 1337;
 
     private final OkHttpClient mOkHttpClient = new OkHttpClient();
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if(mAccessToken == null) {
-            onRequestToken();
+            obtainAccessToken();
         }
 
     }
@@ -154,8 +156,8 @@ public class MainActivity extends AppCompatActivity {
                         String trackId = String.valueOf(tracks.getJSONObject(i).get("uri"));
                         trackIds.add(trackId);
                     }
-                    createShufflePlaylist(orderShufflePlaylist(trackIds));
-                    //createShufflePlaylist(trackIds);
+
+                    createShufflePlaylist(trackIds);
 
                 } catch (JSONException e) {
                     Log.e("Failed to parse data: ", e.getMessage());
@@ -171,12 +173,14 @@ public class MainActivity extends AppCompatActivity {
                 .build();
     }
 
-    public void onRequestToken() {
+    public void obtainAccessToken() {
         final AuthenticationRequest request = getAuthenticationRequest(AuthenticationResponse.Type.TOKEN);
         AuthenticationClient.openLoginActivity(this, AUTH_TOKEN_REQUEST_CODE, request);
     }
 
     private void createShufflePlaylist(List<String> trackIds) {
+
+        List<String> orderedTrackIds = orderShufflePlaylist(trackIds);
 
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/playlists")
@@ -208,9 +212,9 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     if(createPlaylist) {
-                        createPlaylist(trackIds);
+                        createPlaylist(orderedTrackIds);
                     } else {
-                        findAndClearShufflePlaylist(shufflePlaylistId, trackIds);
+                        findAndClearShufflePlaylist(shufflePlaylistId, orderedTrackIds);
                     }
 
                 } catch (JSONException e) {
@@ -227,13 +231,17 @@ public class MainActivity extends AppCompatActivity {
 
 
         for(int i = 0; i < trackIds.size(); i++) {
+
             String trackId = trackIds.get(i).replace("spotify:track:", "");
-             params += trackId + ',';
+            params += trackId;
+
+            if(i < trackIds.size() - 1) {
+                params += "%2C";
+            }
         }
 
-
         final Request request = new Request.Builder()
-                .url("https://api.spotify.com/v1/audio-features?ids=" + params)
+                .url("https://api.spotify.com/v1/audio-features/?ids=" + params)
                 .addHeader("Authorization","Bearer " + mAccessToken)
                 .build();
 
@@ -249,9 +257,11 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call call, Response response) throws IOException {
                 try {
                     JSONObject object = new JSONObject(response.body().string());
-                    JSONArray tracks = object.getJSONArray("audio_features");
+                    Gson gsonObject = new Gson();
+                    List<AudioFeature> convertedTracks = gsonObject.fromJson(
+                            object.getString("audio_features"), new TypeToken<List<AudioFeature>>(){}.getType());
                     PlaylistSorter sorter = new PlaylistSorter();
-                    ltReturnTracks.addAll(sorter.orderMusics(tracks,getApplicationContext()));
+                    ltReturnTracks.addAll(sorter.orderByBattery(convertedTracks, getApplicationContext()));
 
                 } catch (JSONException e) {
                     Log.e("Failed to parse data: ", e.getMessage());
