@@ -23,15 +23,17 @@ public class PlaylistSorter {
 
         float batteryPct = level / (float)scale;
 
-        List<String> tracksIdOrderedByBattery    = new ArrayList<>();
+        List<String> tracksIdOrderedByBattery        = new ArrayList<>();
+        List<String> tracksWithEnergyMoreThenBattery = new ArrayList<>();
 
         for(AudioFeature currentTrack : tracks) {
             if( currentTrack.getEnergy() < batteryPct){
                 tracksIdOrderedByBattery.add(currentTrack.getUri());
             } else {
-                tracksIdOrderedByBattery.add(tracksIdOrderedByBattery.size() - 1, currentTrack.getUri());
+                tracksWithEnergyMoreThenBattery.add(currentTrack.getUri());
             }
         }
+        tracksIdOrderedByBattery.addAll(tracksWithEnergyMoreThenBattery);
 
         return tracksIdOrderedByBattery;
     }

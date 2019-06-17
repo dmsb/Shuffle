@@ -25,8 +25,6 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.spotify.protocol.types.Track;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
     public static final int AUTH_TOKEN_REQUEST_CODE = 1337;
 
     private final OkHttpClient mOkHttpClient = new OkHttpClient();
-    private String mAccessToken;
+    public static String ACCESS_TOKEN;
     private Call mCall;
 
     @Override
@@ -111,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-        if(mAccessToken == null) {
+        if(ACCESS_TOKEN == null) {
             obtainAccessToken();
         }
 
@@ -123,19 +121,19 @@ public class MainActivity extends AppCompatActivity {
         final AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
 
         if (AUTH_TOKEN_REQUEST_CODE == requestCode) {
-            mAccessToken = response.getAccessToken();
+            ACCESS_TOKEN = response.getAccessToken();
         }
     }
 
     public void buildShufflePlaylistAndPlay() {
 
-        if (mAccessToken == null) {
+        if (ACCESS_TOKEN == null) {
             return;
         }
 
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/top/tracks")
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .build();
 
         mCall = mOkHttpClient.newCall(request);
@@ -185,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/playlists")
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .build();
 
         mCall = mOkHttpClient.newCall(request);
@@ -243,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
 
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/audio-features/?ids=" + params)
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .build();
 
         mCall = mOkHttpClient.newCall(request);
@@ -280,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
                     .replaceAll(",", "%2C");
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "/tracks?uris=" + tracksUri)
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .addHeader("Content-Type", "application/json")
                 .addHeader("Accept", "application/json")
                 .post(RequestBody.create(MediaType.parse("application/json"), "{}"))
@@ -306,7 +304,7 @@ public class MainActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(MediaType.parse("application/json"),"{\"name\":\"Shuffle\",\"description\":\"Shuffle auto generated playlist\",\"public\":false}\"");
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/me/playlists")
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .post(body)
                 .build();
 
@@ -330,7 +328,7 @@ public class MainActivity extends AppCompatActivity {
     private void findAndClearShufflePlaylist(String shufflePlaylistId, List<String> tracksToInsert) {
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "?fields=tracks.items.track(uri)")
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
                 .build();
@@ -385,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         RequestBody body = RequestBody.create(MediaType.parse("application/json"), trackIds.toString());
         final Request request = new Request.Builder()
                 .url("https://api.spotify.com/v1/playlists/" + shufflePlaylistId + "/tracks")
-                .addHeader("Authorization","Bearer " + mAccessToken)
+                .addHeader("Authorization","Bearer " + ACCESS_TOKEN)
                 .delete(body)
                 .build();
 
