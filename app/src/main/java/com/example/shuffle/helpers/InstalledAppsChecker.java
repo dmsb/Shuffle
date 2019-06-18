@@ -1,4 +1,4 @@
-package com.example.shuffle;
+package com.example.shuffle.helpers;
 
 import android.content.pm.PackageManager;
 

@@ -4,12 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
-import android.util.Log;
-import org.json.JSONArray;
-import org.json.JSONException;
+
+import com.example.shuffle.models.spotify.AudioFeature;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PlaylistSorter {
 

@@ -10,6 +10,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.example.shuffle.helpers.InstalledAppsChecker;
+import com.example.shuffle.models.spotify.AudioFeature;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.spotify.android.appremote.api.ConnectionParams;
@@ -123,6 +125,55 @@ public class MainActivity extends AppCompatActivity {
         if (AUTH_TOKEN_REQUEST_CODE == requestCode) {
             ACCESS_TOKEN = response.getAccessToken();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        this.playButton =  findViewById(R.id.play_button);
+
+        this.playButton.setOnLongClickListener((View v) -> {
+            Toast.makeText(MainActivity.this, "Shuffle", Toast.LENGTH_SHORT).show();
+            return false;
+        });
+
+        this.playButton.setOnClickListener((View v) -> {
+
+            //Rotation button
+            float btn = this.playButton.getRotation() + 360F;
+            this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
+
+            boolean isInstalledSpotify = InstalledAppsChecker.isPackageInstalled("com.spotify.music", getPackageManager());
+
+            if(isInstalledSpotify) {
+                ConnectionParams connectionParams =
+                        new ConnectionParams.Builder(CLIENT_ID)
+                                .setRedirectUri(REDIRECT_URI)
+                                .showAuthView(true)
+                                .build();
+
+                SpotifyAppRemote.connect(this, connectionParams,
+                        new Connector.ConnectionListener() {
+
+                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
+                                mSpotifyAppRemote = spotifyAppRemote;
+                                Log.d("MainActivity", "Connected! Yay!");
+                                buildShufflePlaylistAndPlay();
+                            }
+
+                            public void onFailure(Throwable throwable) {
+                                Log.e("MyActivity", throwable.getMessage(), throwable);
+                                // Something went wrong when attempting to connect! Handle errors here
+                            }
+                        });
+            }
+        });
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
     public void buildShufflePlaylistAndPlay() {
@@ -401,55 +452,6 @@ public class MainActivity extends AppCompatActivity {
                 insertTracksIntoShufflePlaylist(shufflePlaylistId, tracksToInsert);
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        this.playButton =  findViewById(R.id.play_button);
-
-        this.playButton.setOnLongClickListener((View v) -> {
-            Toast.makeText(MainActivity.this, "Shuffle", Toast.LENGTH_SHORT).show();
-            return false;
-        });
-
-        this.playButton.setOnClickListener((View v) -> {
-
-            //Rotation button
-            float btn = this.playButton.getRotation() + 360F;
-            this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
-
-            boolean isInstalledSpotify = InstalledAppsChecker.isPackageInstalled("com.spotify.music", getPackageManager());
-
-            if(isInstalledSpotify) {
-                ConnectionParams connectionParams =
-                        new ConnectionParams.Builder(CLIENT_ID)
-                                .setRedirectUri(REDIRECT_URI)
-                                .showAuthView(true)
-                                .build();
-
-                SpotifyAppRemote.connect(this, connectionParams,
-                        new Connector.ConnectionListener() {
-
-                            public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                                mSpotifyAppRemote = spotifyAppRemote;
-                                Log.d("MainActivity", "Connected! Yay!");
-                                buildShufflePlaylistAndPlay();
-                            }
-
-                            public void onFailure(Throwable throwable) {
-                                Log.e("MyActivity", throwable.getMessage(), throwable);
-                                // Something went wrong when attempting to connect! Handle errors here
-                            }
-                        });
-            }
-        });
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
     }
 
     private void connected(String shufflePlaylistUri) {
