@@ -1,4 +1,4 @@
-package com.example.shuffle.models.spotify;
+package com.example.shuffle.models.spotify.advanced_searchs;
 
 public class AudioFeature {
 

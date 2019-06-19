@@ -14,6 +14,7 @@ public class Track extends GenericRepresentation {
     private Integer duration_ms;
     private ExternalId externalId;
     private Album album;
+    private List<String> available_markets;
     private List<Artist> artists;
 
     public Boolean getIs_local() {
@@ -102,5 +103,13 @@ public class Track extends GenericRepresentation {
 
     public void setArtists(List<Artist> artists) {
         this.artists = artists;
+    }
+
+    public List<String> getAvailable_markets() {
+        return available_markets;
+    }
+
+    public void setAvailable_markets(List<String> available_markets) {
+        this.available_markets = available_markets;
     }
 }

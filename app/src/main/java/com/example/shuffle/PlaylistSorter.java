@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
-import com.example.shuffle.models.spotify.AudioFeature;
+import com.example.shuffle.models.spotify.advanced_searchs.AudioFeature;
 
 import java.util.ArrayList;
 import java.util.List;

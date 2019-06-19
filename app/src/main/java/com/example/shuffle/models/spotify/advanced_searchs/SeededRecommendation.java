@@ -1,4 +1,7 @@
-package com.example.shuffle.models.spotify;
+package com.example.shuffle.models.spotify.advanced_searchs;
+
+import com.example.shuffle.models.spotify.Seed;
+import com.example.shuffle.models.spotify.Track;
 
 import java.util.List;
 
