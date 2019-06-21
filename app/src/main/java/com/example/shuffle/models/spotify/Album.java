@@ -1,6 +1,5 @@
 package com.example.shuffle.models.spotify;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class Album extends GenericRepresentation {

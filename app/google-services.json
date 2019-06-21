@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "234105908035",
+    "firebase_url": "https://shuflle.firebaseio.com",
+    "project_id": "shuflle",
+    "storage_bucket": "shuflle.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234105908035:android:13d1efc9e4209187",
+        "android_client_info": {
+          "package_name": "com.example.shuffle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "234105908035-ve41n9nbu754da9eh8cg2caad26t4iit.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCoeeWU9rgzgWqeq4JG6MWtubE7E3VIqCg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "234105908035-ve41n9nbu754da9eh8cg2caad26t4iit.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

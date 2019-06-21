@@ -32,8 +32,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.14.1'
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
-
-    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.google.firebase:firebase-core:16.0.9'
 
     implementation project(':spotify-app-remote-release-0.6.1')
     implementation 'com.spotify.android:auth:1.1.0'
@@ -44,3 +43,5 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 
 }
+
+apply plugin: 'com.google.gms.google-services'

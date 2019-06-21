@@ -6,13 +6,14 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 
 import com.example.shuffle.models.spotify.advanced_searchs.AudioFeature;
+import com.example.shuffle.models.spotify.advanced_searchs.AudioFeatureResult;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class PlaylistSorter {
 
-    public List<String> orderByBattery(List<AudioFeature> tracks, Context context){
+    public List<String> orderByBattery(AudioFeatureResult audioFeatureResult, Context context){
 
         IntentFilter iFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, iFilter);
@@ -25,7 +26,7 @@ public class PlaylistSorter {
         List<String> tracksIdOrderedByBattery        = new ArrayList<>();
         List<String> tracksWithEnergyMoreThenBattery = new ArrayList<>();
 
-        for(AudioFeature currentTrack : tracks) {
+        for(AudioFeature currentTrack : audioFeatureResult.getAudio_features()) {
             if( currentTrack.getEnergy() < batteryPct){
                 tracksIdOrderedByBattery.add(currentTrack.getUri());
             } else {
