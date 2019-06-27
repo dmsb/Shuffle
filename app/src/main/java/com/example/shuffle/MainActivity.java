@@ -22,6 +22,8 @@ import com.spotify.android.appremote.api.Connector;
 import com.spotify.android.appremote.api.SpotifyAppRemote;
 
 import androidx.appcompat.app.AppCompatActivity;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,16 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton searchButton;
     private ImageButton settingsButton;
     private AdView mAdView;
-    public static final String REDIRECT_URI = "https://open.spotify.com/";
     public static Boolean isInstalledSpotify;
-
-    public static SpotifyAppRemote mSpotifyAppRemote;
-
-    // public static final String CLIENT_ID = "d7ebba782ca24b48a51094cfc9dbd152"; //jorge id
-    public static final String CLIENT_ID = "0599d96797ef4cd19d655b778aacaa27"; //diogo id
-    public static final int AUTH_TOKEN_REQUEST_CODE = 1337;
-
-    public static String ACCESS_TOKEN;
 
     private SpotifyService spotifyService =  ConnectionBuilder.createService(SpotifyService.class);
 
@@ -107,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         isInstalledSpotify = InstalledAppsChecker.isPackageInstalled("com.spotify.music", getPackageManager());
-        if(isInstalledSpotify && ACCESS_TOKEN == null) {
+        if(isInstalledSpotify && ConnectionBuilder.ACCESS_TOKEN == null) {
             obtainAccessToken();
         }
 
@@ -118,8 +111,8 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         final AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
 
-        if (AUTH_TOKEN_REQUEST_CODE == requestCode) {
-            ACCESS_TOKEN = response.getAccessToken();
+        if (ConnectionBuilder.AUTH_TOKEN_REQUEST_CODE == requestCode) {
+            ConnectionBuilder.ACCESS_TOKEN = response.getAccessToken();
         }
     }
 
@@ -139,12 +132,12 @@ public class MainActivity extends AppCompatActivity {
             float btn = this.playButton.getRotation() + 360F;
             this.playButton.animate().rotation(btn).setInterpolator(new AccelerateDecelerateInterpolator()).setDuration(1000);
 
-            if(mSpotifyAppRemote != null && mSpotifyAppRemote.isConnected()) {
+            if(ConnectionBuilder.mSpotifyAppRemote != null && ConnectionBuilder.mSpotifyAppRemote.isConnected()) {
                 buildShufflePlaylistAndPlay();
             } else {
                 ConnectionParams connectionParams =
-                        new ConnectionParams.Builder(CLIENT_ID)
-                                .setRedirectUri(REDIRECT_URI)
+                        new ConnectionParams.Builder(ConnectionBuilder.CLIENT_ID)
+                                .setRedirectUri(ConnectionBuilder.REDIRECT_URI)
                                 .showAuthView(true)
                                 .build();
 
@@ -153,7 +146,7 @@ public class MainActivity extends AppCompatActivity {
                         new Connector.ConnectionListener() {
 
                             public void onConnected(SpotifyAppRemote spotifyAppRemote) {
-                                mSpotifyAppRemote = spotifyAppRemote;
+                                ConnectionBuilder.mSpotifyAppRemote = spotifyAppRemote;
                                 Log.d("MainActivity", "Connected! Yay!");
                                 buildShufflePlaylistAndPlay();
                             }
@@ -170,16 +163,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        SpotifyAppRemote.disconnect(mSpotifyAppRemote);
+        SpotifyAppRemote.disconnect(ConnectionBuilder.mSpotifyAppRemote);
     }
 
     public void buildShufflePlaylistAndPlay() {
 
-        if (ACCESS_TOKEN == null) {
+        if (ConnectionBuilder.ACCESS_TOKEN == null) {
             return;
         }
 
-        Call<TypedItemResult<Track>> call =  spotifyService.getTopMusicsOfPlayer("Bearer " + ACCESS_TOKEN, 50);
+        Call<TypedItemResult<Track>> call =  spotifyService.getTopMusicsOfPlayer("Bearer " + ConnectionBuilder.ACCESS_TOKEN, 50);
 
         call.enqueue(new Callback<TypedItemResult<Track>>() {
             @Override
@@ -204,19 +197,19 @@ public class MainActivity extends AppCompatActivity {
 
     private AuthenticationRequest getAuthenticationRequest(AuthenticationResponse.Type type) {
         String[] scopes = "streaming user-read-recently-played user-top-read user-library-modify user-library-read playlist-read-private playlist-modify-public playlist-modify-private playlist-read-collaborative user-read-email user-read-birthdate user-read-private user-read-playback-state user-modify-playback-state user-read-currently-playing app-remote-control streaming".split("\\s+");
-        return new AuthenticationRequest.Builder(CLIENT_ID, type, "https://open.spotify.com/")
+        return new AuthenticationRequest.Builder(ConnectionBuilder.CLIENT_ID, type, ConnectionBuilder.REDIRECT_URI)
                 .setScopes(scopes)
                 .build();
     }
 
     public void obtainAccessToken() {
         final AuthenticationRequest request = getAuthenticationRequest(AuthenticationResponse.Type.TOKEN);
-        AuthenticationClient.openLoginActivity(this, AUTH_TOKEN_REQUEST_CODE, request);
+        AuthenticationClient.openLoginActivity(this, ConnectionBuilder.AUTH_TOKEN_REQUEST_CODE, request);
     }
 
     private void createShufflePlaylist(List<String> trackIds) {
 
-        Call<TypedItemResult<Playlist>> call =  spotifyService.getuserPlaylists("Bearer " + ACCESS_TOKEN);
+        Call<TypedItemResult<Playlist>> call =  spotifyService.getuserPlaylists("Bearer " + ConnectionBuilder.ACCESS_TOKEN);
 
         call.enqueue(new Callback<TypedItemResult<Playlist>>() {
 
@@ -254,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
     private void createorderedShufflePlaylist(List<String> trackIds) {
 
         String ids = String.join(",", trackIds).replace("spotify:track:", "");
-        Call<AudioFeatureResult> call =  spotifyService.getAutdioFeatureByTracks("Bearer " + ACCESS_TOKEN, ids);
+        Call<AudioFeatureResult> call =  spotifyService.getAutdioFeatureByTracks("Bearer " + ConnectionBuilder.ACCESS_TOKEN, ids);
 
         call.enqueue(new Callback<AudioFeatureResult>() {
 
@@ -276,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
         String tracksUri = String.join(",", trackIds);
 
-        Call<Void> call =  spotifyService.insertTracksIntoPlaylist("Bearer " + ACCESS_TOKEN, shufflePlaylistId, tracksUri);
+        Call<Void> call =  spotifyService.insertTracksIntoPlaylist("Bearer " + ConnectionBuilder.ACCESS_TOKEN, shufflePlaylistId, tracksUri);
 
         call.enqueue(new Callback<Void>() {
 
@@ -299,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         shufflePlaylist.setDescription("The playlist made for your. @Shuffle");
         shufflePlaylist.setPublic(false);
 
-        Call<Void> call =  spotifyService.createPlaylist("Bearer " + ACCESS_TOKEN, shufflePlaylist);
+        Call<Void> call =  spotifyService.createPlaylist("Bearer " + ConnectionBuilder.ACCESS_TOKEN, shufflePlaylist);
 
         call.enqueue(new Callback<Void>() {
 
@@ -319,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
     private void findAndClearShufflePlaylist(String shufflePlaylistId, List<String> tracksToInsert) {
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization","Bearer " + ACCESS_TOKEN);
+        headers.put("Authorization","Bearer " + ConnectionBuilder.ACCESS_TOKEN);
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
 
@@ -360,21 +353,23 @@ public class MainActivity extends AppCompatActivity {
         trackIds.append("{\"tracks\":[");
 
         for(int i = 0; tracksToBeRemoved.size() > i; i++) {
-            trackIds.append("{\"uri\": \"")
+            trackIds.append("{\"uri\":\"")
                     .append(tracksToBeRemoved.get(i).getUri())
                     .append("\"}");
             if(tracksToBeRemoved.size() > i + 1) {
-                trackIds.append(", ");
+                trackIds.append(",");
             }
         }
         trackIds.append("]}");
+        String malformatedTracks = trackIds.toString();
 
         Map<String, String> headers = new HashMap<>();
-        headers.put("Authorization","Bearer " + ACCESS_TOKEN);
+        headers.put("Authorization", "Bearer " + ConnectionBuilder.ACCESS_TOKEN);
         headers.put("Content-Type", "application/json");
         headers.put("Accept", "application/json");
+        RequestBody body = RequestBody.create(MediaType.get("application/json"), malformatedTracks);
 
-        Call<Void> call =  spotifyService.deleteTracksByPlaylist(headers, trackIds.toString());
+        Call<Void> call =  spotifyService.deleteTracksByPlaylist(headers, shufflePlaylistId, body);
 
         call.enqueue(new Callback<Void>() {
 
@@ -393,10 +388,10 @@ public class MainActivity extends AppCompatActivity {
     private void connected(String shufflePlaylistUri) {
 
         // Play a
-        mSpotifyAppRemote.getPlayerApi().play(shufflePlaylistUri);
+        ConnectionBuilder.mSpotifyAppRemote.getPlayerApi().play(shufflePlaylistUri);
 
         // Subscribe to PlayerState
-        mSpotifyAppRemote.getPlayerApi()
+        ConnectionBuilder.mSpotifyAppRemote.getPlayerApi()
                 .subscribeToPlayerState()
                 .setEventCallback(playerState -> {
                     if (playerState.track != null) {

@@ -3,11 +3,12 @@ package com.example.shuffle.service;
 import com.example.shuffle.models.spotify.Playlist;
 import com.example.shuffle.models.spotify.Track;
 import com.example.shuffle.models.spotify.advanced_searchs.AudioFeatureResult;
+import com.example.shuffle.models.spotify.query_result.GenericTypedItemResult;
 import com.example.shuffle.models.spotify.query_result.TypedItemResult;
 
-import java.util.List;
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -17,6 +18,7 @@ import retrofit2.http.HeaderMap;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 
 
 public interface SpotifyService {
@@ -33,12 +35,15 @@ public interface SpotifyService {
     @GET("v1/playlists/{id}?fields=tracks.items.track(uri)")
     Call<Playlist> getPlaylistTracks(@HeaderMap Map<String, String> headers, @Path("id") String playlistId);
 
-    @HTTP(method = "DELETE", path = "v1/playlists/tracks", hasBody = true)
-    Call<Void> deleteTracksByPlaylist(@HeaderMap Map<String, String> headers, @Body String tracksIds);
+    @HTTP(method = "DELETE", path = "v1/playlists/{id}/tracks", hasBody = true)
+    Call<Void> deleteTracksByPlaylist(@HeaderMap Map<String, String> headers, @Path("id") String playlistId, @Body RequestBody tracksIds);
 
     @POST("v1/playlists/{id}/tracks")
     Call<Void> insertTracksIntoPlaylist(@Header("Authorization") String authorization, @Path("id") String playlistId, @Query("uris") String uris);
 
     @GET("v1/audio-features")
     Call<AudioFeatureResult> getAutdioFeatureByTracks(@Header("Authorization") String authorization, @Query("ids") String ids);
+
+    @GET("v1/search")
+    Call<GenericTypedItemResult> searchByPredicate(@Header("Authorization") String authorization, @QueryMap Map<String, String> predicate);
 }

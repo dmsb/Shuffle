@@ -22,7 +22,7 @@
             android:height="100dp"
             android:backgroundTint="#D8D8D8"
             android:textColor="#181818"
-            android:tag="rock_button"
+            android:tag="ROCK"
             android:onClick="onGenderClick"/>
         <Button
             android:id="@+id/brazil_button"
@@ -31,7 +31,7 @@
             android:height="100dp"
             android:backgroundTint="#E8E8E8"
             android:textColor="#181818"
-            android:tag="brazil"
+            android:tag="BRAZIL"
             android:onClick="onGenderClick"/>
         <Button
             android:id="@+id/indie_button"
@@ -40,7 +40,7 @@
             android:height="100dp"
             android:backgroundTint="#E8E8E8"
             android:textColor="#181818"
-            android:tag="indie_button"
+            android:tag="INDIE"
             android:onClick="onGenderClick"/>
         <Button
             android:id="@+id/pop_button"
@@ -49,7 +49,7 @@
             android:height="100dp"
             android:backgroundTint="#D8D8D8"
             android:textColor="#181818"
-            android:tag="pop_button"
+            android:tag="POP"
             android:onClick="onGenderClick"/>
     </GridLayout>
 
